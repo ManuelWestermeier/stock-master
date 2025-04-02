@@ -37,29 +37,35 @@ const puppeteer = require('puppeteer');
         // Wait for the input area to be available
         const inputArea = await page.waitForSelector("[contenteditable=true]");
 
-        const dataPrompt = `Please provide all relevant information from these articles in strict JSON format (onyl JSON NO other texts). Only include stocks that are certain to increase. The format should be: [{ "name": "stock name", "intensity": 0-10 }]. The articles content: ${texts}`.replaceAll("\n", "\\n");
+        const dataPrompt = `Please provide all relevant information from these articles in strict JSON format (onyl JSON NO other texts). Only include stocks that are certain to increase. The format should be: [{ "name": "stock name", "intensity": 0-10 }]. The articles content: ${texts}`.replaceAll("\n", "\\n") + "\n";
 
 
         await inputArea.type(dataPrompt);
 
         // Wait for the submit button and click it
-        const submitButton = await page.waitForSelector("#composer-submit-button");
-        await submitButton.click();
+        // const submitButton = await page.waitForSelector("#composer-submit-button");
+        // await submitButton.click();
 
-        // Wait for the specific fade-in element to appear and be visible
+        // Wait for the specific fade -in element to appear and be visible
         await page.waitForFunction(
             'document.querySelector("._fadeIn_4f9by_7") !== null && window.getComputedStyle(document.querySelector("._fadeIn_4f9by_7")).visibility !== "hidden"',
             { timeout: 300000 }  // Timeout after 5 Min
         );
 
-        // Wait for the response to be generated (adjust the selector if necessary)
-        await page.waitForSelector(".message-in"); // Waiting for the response message
+        // Wait for the response to be generated(adjust the selector if necessary)
+        // await page.waitForSelector(".message-in"); // Waiting for the response message
 
-        // Retrieve the answer from the conversation
-        const answer = await page.evaluate(() => {
-            const messages = Array.from(document.querySelectorAll(".message-in"));
-            return messages[messages.length - 1].innerText; // Get the last response message
-        });
+        // // Retrieve the answer from the conversation
+        // const answer = await page.evaluate(() => {
+        //     const messages = Array.from(document.querySelectorAll(".message-in"));
+        //     return messages[messages.length - 1].innerText; // Get the last response message
+        // });
+
+        const answerElem = await page.waitForSelector("code")
+
+        const answer = page.evaluate(() => {
+            return document.querySelector("[class='!whitespace-pre language-json']").textContent
+        })
 
         return JSON.parse(answer);
     }
