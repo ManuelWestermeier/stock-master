@@ -1,0 +1,15 @@
+{
+  "name": "stock-news-predictor",
+  "version": "1.0.0",
+  "description": "A Node.js application that scrapes the latest news, asks ChatGPT for stock market predictions, and tracks accuracy over time.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "fs-extra": "^11.3.0",
+    "puppeteer": "^24.5.0"
+  },
+  "author": "Your Name",
+  "license": "MIT"
+}
