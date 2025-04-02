@@ -39,13 +39,14 @@ const puppeteer = require('puppeteer');
         await new Promise(res => setTimeout(res, Math.floor(Math.floor(Math.random() * 10))))
 
         // Wait for the input area to be available
-        const inputArea = await page.waitForSelector("#prompt-textarea");
+        const inputArea = await page.waitForSelector("[contenteditable=true]");
 
         const dataPrompt = `Please provide all relevant information from these articles in strict JSON format (onyl JSON NO other texts). Only include stocks that are certain to increase. The format should be: [{ "name": "stock name", "intensity": 0-10 }]. The articles content: ${texts}`.replaceAll("\n", "\\n") + "\n";
 
+        console.log("dataPrompt", dataPrompt);
 
         // await page.evaluate(() => {
-        //     document.querySelector("#prompt-textarea").textContent = dataPrompt
+        //     document.querySelector("[contenteditable=true]").textContent = dataPrompt
         // })
 
         inputArea.type(dataPrompt)
