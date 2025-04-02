@@ -34,13 +34,21 @@ const puppeteer = require('puppeteer');
         // Navigate to the ChatGPT website (adjust the URL if needed)
         await page.goto("https://chat.openai.com/chat");
 
+        await page.waitForNetworkIdle()
+
+        await new Promise(res => setTimeout(res, Math.floor(Math.floor(Math.random() * 10))))
+
         // Wait for the input area to be available
-        const inputArea = await page.waitForSelector("[contenteditable=true]");
+        const inputArea = await page.waitForSelector("#prompt-textarea");
 
         const dataPrompt = `Please provide all relevant information from these articles in strict JSON format (onyl JSON NO other texts). Only include stocks that are certain to increase. The format should be: [{ "name": "stock name", "intensity": 0-10 }]. The articles content: ${texts}`.replaceAll("\n", "\\n") + "\n";
 
 
-        await inputArea.type(dataPrompt);
+        // await page.evaluate(() => {
+        //     document.querySelector("#prompt-textarea").textContent = dataPrompt
+        // })
+
+        inputArea.type(dataPrompt)
 
         // Wait for the submit button and click it
         // const submitButton = await page.waitForSelector("#composer-submit-button");
@@ -61,7 +69,7 @@ const puppeteer = require('puppeteer');
         //     return messages[messages.length - 1].innerText; // Get the last response message
         // });
 
-        const answerElem = await page.waitForSelector("code")
+        const answerElem = await page.waitForSelector("code", { timeout: 300000 })
 
         const answer = page.evaluate(() => {
             return document.querySelector("[class='!whitespace-pre language-json']").textContent
