@@ -5,7 +5,7 @@ import getPrompt from "./get-prompt.js";
 
 // Launch full Chrome with non-headless mode; adjust executablePath as needed.
 const browser = await getBrowser();
-const page = await browser.newPage();
+const page = browser?.pages?.[0] ?? await browser.newPage();
 
 try {
     const data = await getNewsTexts(page);

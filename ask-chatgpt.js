@@ -18,9 +18,13 @@ export default async function askChatGPT(page, prompt) {
     await page.keyboard.press('Enter');
 
     await page.waitForFunction(() => {
-        const responses = document.querySelectorAll('code');
-        return responses.length > 0;
-    }, { timeout: 500_000 });
+        try {
+            const responses = document.querySelectorAll('code');
+            return responses.length > 0;
+        } catch (error) {
+            return false;
+        }
+    });
 
     // Get the last response
     return await await page.evaluate(() => new Promise(resolve => {
