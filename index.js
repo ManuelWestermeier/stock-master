@@ -50,46 +50,41 @@ const puppeteer = require('puppeteer');
         await page.keyboard.press('Enter');
 
         await page.waitForFunction(() => {
-            const responses = document.querySelectorAll('.markdown');
+            const responses = document.querySelectorAll('code');
             return responses.length > 0;
         }, { timeout: 30_000 });
 
         // Get the last response
         return await await page.evaluate(() => new Promise(resolve => {
-            let lastText = Math.random() + "";
-
-            function getRes() {
-                const md = document.querySelector('.markdown');
-                return md.textContent;
-            }
-
-            let counter = 0;
             const interval = setInterval(() => {
-                const res = getRes();
-
-                console.log(res);
-
-                if (res != lastText) {
-                    counter = 0;
-                    lastText = res;
-                }
-                else if (counter++ > 2) {
-                    resolve(res);
+                const res = document.querySelector("code").textContent;
+                try {
+                    const json = JSON.parse(res);
+                    resolve(json);
                     clearInterval(interval);
-                };
-            }, 5_000);
+                } catch (error) { }
+            }, 2_000);
         }));
     }
 
     try {
-        const prompt = await getNewsTexts();
+        const data = await getNewsTexts();
+
+        const prompt = `Please provide all relevant information from these articles in strict JSON format (onyl JSON NO other texts).
+        Only include important and trusted stocks that are certain to change.
+        The format should be: [{ "name": "stock name", "intensity": -10 to 10 }].
+        The articles content:
+        ${data}`
+            .replaceAll("\n", "\\n")
+            .replaceAll("\t", " ");
         // Usage
         const ans = await askChatGPT(prompt);
+
         console.log(ans);
     } catch (error) {
         console.error('Error:', error);
     } finally {
         // Close the browser
-        // await browser.close();
+        await browser.close();
     }
 })();
