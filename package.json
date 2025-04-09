@@ -7,9 +7,9 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "fs-extra": "^11.3.0",
     "puppeteer": "^24.5.0"
   },
-  "author": "Your Name",
-  "license": "MIT"
+  "author": "Manuel Westermeier",
+  "license": "MIT",
+  "type": "module"
 }
