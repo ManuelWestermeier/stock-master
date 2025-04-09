@@ -34,11 +34,35 @@ const puppeteer = require('puppeteer');
         });
     }
 
+    function randomMoveMouse(page) {
+        // Define circle parameters
+        const centerX = 500;      // X-coordinate of the circle's center
+        const centerY = 500;      // Y-coordinate of the circle's center
+        const radius = 100;       // Radius of the circle
+        let angle = 0;            // Starting angle in radians
+        // Set up the interval to move the mouse every 20 ms
+        return setInterval(() => {
+            // Increase the angle by a random increment between 0.05 and 0.25 radians
+            angle += Math.random() * 0.2 + 0.05;
+
+            // Calculate new x, y coordinates along the circle
+            const x = centerX + radius * Math.cos(angle);
+            const y = centerY + radius * Math.sin(angle);
+
+            // Move the mouse to the new coordinates
+            page.mouse.move(x, y);
+        }, 20);
+    }
+
     async function askChatGPT(prompt) {
         const page = await browser.newPage();
 
         // Go to ChatGPT
-        await page.goto('https://chat.openai.com', { waitUntil: 'networkidle2' });
+        await page.goto('https://chat.openai.com');
+
+        const mouseMoveInterval = randomMoveMouse(page)
+
+        page.waitForNetworkIdle({});
 
         // Wait for the chat box to appear
         await page.waitForSelector('textarea');
@@ -60,8 +84,12 @@ const puppeteer = require('puppeteer');
                 const res = document.querySelector("code").textContent;
                 try {
                     const json = JSON.parse(res);
-                    resolve(json);
+
+                    //clear intervals
                     clearInterval(interval);
+                    clearInterval(mouseMoveInterval);
+
+                    resolve(json);
                 } catch (error) { }
             }, 2_000);
         }));
@@ -70,13 +98,14 @@ const puppeteer = require('puppeteer');
     try {
         const data = await getNewsTexts();
 
-        const prompt = `Please provide all relevant information from these articles in strict JSON format (onyl JSON NO other texts).
-        Only include important and trusted stocks that are certain to change.
-        The format should be: [{ "name": "stock name", "intensity": -10 to 10 }].
-        The articles content:
+        const prompt = `Extract all relevant information about stocks from the articles below in strict JSON format (ONLY JSON—no additional text). 
+        Include only important, trusted, and promising stocks that are expected to undergo significant changes. 
+        The JSON output must follow this format: [{"name": "stock name", "intensity": -10 to 10, reason: "little amount of words that describe the reason the stock is changing"}].
+        Articles content:
         ${data}`
             .replaceAll("\n", "\\n")
             .replaceAll("\t", " ");
+
         // Usage
         const ans = await askChatGPT(prompt);
 
