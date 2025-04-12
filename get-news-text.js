@@ -1,19 +1,42 @@
 export default async function getNewsTexts(page) {
-  // Navigate to a website
+  // Navigate to the website
   await page.goto("https://news.google.com/");
 
+  // Wait for the "Accept" button and click it
   const acceptButton = await page.waitForSelector("[jsname=b3VHJd]");
-  acceptButton.click();
+  await acceptButton.click();
 
+  // Wait for headlines to be rendered (ensuring the page is loaded)
   await page.waitForSelector("h2");
 
-  // Get the headlines of the news articles
-  return await page.evaluate(() => {
-    // Select all text
-    document.execCommand("selectAll", false, null);
+  // Helper function to get the current selection text
+  async function getSelection() {
+    return page.evaluate(() => {
+      // Select all the text in the document
+      document.execCommand("selectAll", false, null);
+      // Return the selected text as a string
+      return window.getSelection().toString();
+    });
+  }
 
-    // Get the selected text
-    const selection = window.getSelection();
-    return selection.toString();
-  });
+  // Wait until the selection remains unchanged for 5 consecutive seconds.
+  let previousSelection = "";
+  let stableCount = 0;
+  let currentSelection = "";
+
+  while (stableCount < 5) {
+    // Wait 1 second between checks
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    currentSelection = await getSelection();
+
+    if (currentSelection === previousSelection) {
+      stableCount++;
+    } else {
+      stableCount = 0;
+    }
+    previousSelection = currentSelection;
+  }
+
+  return currentSelection;
 }
