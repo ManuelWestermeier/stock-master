@@ -4,6 +4,7 @@ export default function getPrompt(data) {
     "Include only important, trusted, and promising stocks that are expected to undergo significant changes.",
     "Exclude countries; include only stocks with increasing potential.",
     'The JSON output must follow this format: [{"name": "stock name", "intensity": -10 to 10, "reason": "brief explanation of why the stock is changing"}].',
+    "Write the json in a code view.",
     "Articles content:",
     data,
   ];

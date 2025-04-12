@@ -2,6 +2,7 @@ import randomMoveMouse from "./random-move-mouse.js";
 
 export default async function askChatGPT(page, prompt) {
   await page.goto("https://chat.openai.com", { waitUntil: "networkidle2" });
+  // clearStorage(page);
 
   const mouseMoveInterval = randomMoveMouse(page);
 
@@ -29,7 +30,7 @@ export default async function askChatGPT(page, prompt) {
             const json = JSON.parse(code);
             clearInterval(interval);
             resolve(json);
-          } catch {}
+          } catch { }
         }, 2000);
       })
   );
