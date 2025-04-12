@@ -1,47 +1,39 @@
 import randomMoveMouse from "./random-move-mouse.js";
 
 export default async function askChatGPT(page, prompt) {
-  // Go to ChatGPT
-  await page.goto("https://chat.openai.com");
+  await page.goto("https://chat.openai.com", { waitUntil: "networkidle2" });
 
   const mouseMoveInterval = randomMoveMouse(page);
 
-  page.waitForNetworkIdle();
+  // Wait for the chat input
+  await page.waitForSelector("#prompt-textarea");
 
-  // Wait for the chat box to appear
-  await page.waitForSelector("textarea");
-
-  // Type the prompt
-  await page.type("textarea", prompt);
-
-  // Press Enter to submit
+  await page.type("#prompt-textarea", prompt);
   await page.keyboard.press("Enter");
 
-  await page.waitForFunction(() => {
-    try {
-      const responses = document.querySelectorAll("code");
-      return responses.length > 0;
-    } catch (error) {
-      return false;
-    }
-  });
+  // Wait until response shows up in code block
+  await page.waitForFunction(
+    () => {
+      const blocks = document.querySelectorAll("code");
+      return blocks.length > 0;
+    },
+    { timeout: 30_000 }
+  );
 
-  // Get the last response
-  return await await page.evaluate(
+  const result = await page.evaluate(
     () =>
       new Promise((resolve) => {
         const interval = setInterval(() => {
-          const res = document.querySelector("code").textContent;
+          const code = document.querySelector("code")?.textContent;
           try {
-            const json = JSON.parse(res);
-
-            //clear intervals
+            const json = JSON.parse(code);
             clearInterval(interval);
-            clearInterval(mouseMoveInterval);
-
             resolve(json);
-          } catch (error) {}
-        }, 2_000);
+          } catch {}
+        }, 2000);
       })
   );
+
+  clearInterval(mouseMoveInterval);
+  return result;
 }
