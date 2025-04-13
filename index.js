@@ -11,7 +11,7 @@ const page = browser?.pages?.[0] ?? (await browser.newPage());
 
 let state = "initializing...";
 
-http.createServer((req, res) => {
+http.createServer((_req, res) => {
   const realodScript = `<script>
     setTimeout(() => window.location.reload(), 2000);
   </script>`;

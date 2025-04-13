@@ -1,5 +1,9 @@
-import puppeteer from "puppeteer";
+import puppeteer, { Browser } from "puppeteer";
 
+/**
+ * 
+ * @returns {Promise<Browser>}
+ */
 export default async function getBrowser() {
   return await puppeteer.launch({
     headless: false,
