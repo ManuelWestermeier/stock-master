@@ -7,7 +7,14 @@ import http from "http";
 
 // Launch full Chrome with non-headless mode; adjust executablePath as needed.
 const browser = await getBrowser();
-const page = browser?.pages?.[0] ?? (await browser.newPage());
+const page = (await browser?.pages())?.[0] ?? (await browser.newPage());
+
+// setInterval(async () => {
+//   const pages = await browser.pages()
+//   for (let i = 0; i < pages.length; i++) {
+//     pages.at(i).screenshot({ path: `img/${i}.png` });
+//   }
+// }, 2_000);
 
 let state = "initializing...";
 

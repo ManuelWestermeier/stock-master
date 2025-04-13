@@ -12,6 +12,8 @@ export default async function getBrowser() {
     args: [
       "--disable-blink-features=AutomationControlled", // Helps bypass some bot detections.
       "--start-maximized",
+      '--no-sandbox',
+      '--disable-setuid-sandbox'
     ],
   });
 }
