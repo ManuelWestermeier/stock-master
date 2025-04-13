@@ -7,12 +7,23 @@ export default async function get2ndPrediction(page, ans) {
     for (const { name, intensity, reason } of ans) {
         try {
             const stockChangeInPercent = await getStockChange(page, name);
+            const prompt = `Evaluate the following prediction:
 
-            const prompt = `Is the prediction right: 
-            the stock ${name} gets higher with factor: ${intensity} (-10 to 10) with reason: ${reason}. 
-            This is the real stock change in percent: ${stockChangeInPercent}%. 
-            Give me as answer only the number in json in a code block (JSON). No text.
-            The answer has to be from -10 (no) to 10 (yessss)`.replaceAll("\n", "\\n");
+            Stock: ${name}
+            Predicted movement: The stock is expected to change by a factor of ${intensity} (from -10 indicating a strong decline to 10 indicating a strong increase)
+            Reason for prediction: ${reason}
+            Actual stock change: ${stockChangeInPercent}%
+            
+            Instructions:
+            1. Compare the prediction with the actual stock change.
+            2. Answer with a single numeric value in the JSON format encapsulated in a code block.
+            3. The number must be between -10 (completely incorrect) and 10 (perfectly correct).
+            4. USE ONLY THE PROVIDED DATA - DO NOT HALLUCINATE any additional information.
+               
+            Example output (if the number is 7):
+            \`\`\`json
+            7
+            \`\`\``.replaceAll("\n", "\\n");
 
             const answer = await askChatGPT(page, prompt);
 
